@@ -29,7 +29,7 @@ For the next methods let's consider the following example:
 
 **double SqlRows::AS_DOUBLE(const char\* field)**
 
-**const unsigned char* SqlRows::AS_TEXT(const char\* field)**
+**const unsigned char\* SqlRows::AS_TEXT(const char\* field)**
 
 These methods get the specific column name in the current row of the result as int,
 double and const unsigned char* respectively.
