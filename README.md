@@ -52,11 +52,11 @@ the callback should take one parameter and return void.
 
 **SqlRows SQLiteDB::getRows(const char\* query)**
 
-Returns a SqlRows with the result of the query.
+Returns a **SqlRows** object with the result of the query.
 
 **bool SQLiteDB::executeQuery(const char\* query)**
 
-Return true of the query is successful false otherwise.
+Return true if the query is successful false otherwise.
 
 **template<typename Func>
 bool SQLiteDB::executeQuery(const char* query, Func callback)**
