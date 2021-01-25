@@ -5,7 +5,7 @@ Simple C++ classes to query Sqlite3 databases.
 
 Documentation:
 
-**SqlRows::SqlRows(sqlite3_stmt* statement)**
+**SqlRows::SqlRows(sqlite3_stmt\* statement)**
 
 Constructor, SqlRows is a wrapper for sqlite3_stmt*
 
