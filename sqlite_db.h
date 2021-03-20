@@ -6,7 +6,6 @@
 * Date:    23-01-2021                                                *
 * Author:  Dan Machado                                               *                                         *
 **********************************************************************/
-
 #ifndef SQLITE_DB_H
 #define SQLITE_DB_H
 
@@ -16,40 +15,7 @@
 #include <map>
 #include <functional>
 
-//using namespace std;
-
-//########################################################################
-
-template<typename T>
-struct TypeToFunction
-{};
-
-template<>
-struct TypeToFunction<int>
-{
-	typedef int(*FuncInt)(sqlite3_stmt*, int);
-	static const int defaultValue;
-	static FuncInt getColumnData;
-};
-
-template<>
-struct TypeToFunction<double>
-{
-	typedef double(*FuncDouble)(sqlite3_stmt*, int);
-	static const double defaultValue;
-	static FuncDouble getColumnData;
-};
-
-template<>
-struct TypeToFunction<std::string>
-{
-	typedef std::string(*FuncText)(sqlite3_stmt*, int);
-	static std::string defaultValue;
-	static FuncText getColumnData;
-	static std::string columnToString(sqlite3_stmt* sqlitest, int){
-		return reinterpret_cast<char const*>(sqlite3_column_text(sqlitest, 0));
-	}
-};
+#include "sqlite_db_traits.h"
 
 //########################################################################
 
@@ -88,6 +54,11 @@ class SqlRows
 		const unsigned char* AS_TEXT(const char* field){
 			return sqlite3_column_text(m_statement, m_fieldNames[field]);
 		}
+		
+		template<typename T>
+		T DATA_AS(const char* field){
+			return TypeToFunction<T>::getColumnData(m_statement, m_fieldNames[field]);
+		}
 	
 		struct FieldName {
 			const char* field;
@@ -101,7 +72,9 @@ class SqlRows
 		sqlite3_stmt* m_statement;
 };
 
-bool operator<(const SqlRows::FieldName& fieldNameL, const SqlRows::FieldName& fieldNameR);
+inline bool operator<(const SqlRows::FieldName& fieldNameL, const SqlRows::FieldName& fieldNameR) {
+	return std::strcmp(fieldNameL.field, fieldNameR.field) < 0;
+}
 
 //####################################################################
 
@@ -118,7 +91,7 @@ class SQLiteDB
 			:DB(nullptr),
 			m_changed(false)
 		{
-			if (sqlite3_open(db, &DB)){
+			if (sqlite3_open_v2(db, &DB,SQLITE_OPEN_READWRITE, NULL)){
 				throw sqlite3_errmsg(DB);
 			}
 		}
@@ -162,15 +135,34 @@ class SQLiteDB
 		sqlite3_int64 lastInsertID(){
 			return sqlite3_last_insert_rowid(DB);
 		}
+
+		template<typename... Args>
+		int prepareQuery(const char* query, Args ...args);
 	
 	private:
 		sqlite3* DB;
 		bool m_changed;
-		int m_numColumns;//The number of columns in the result set. As far as the query return at least a row, m_numColmns will be the number of columns in that row.
-	
+		/*The number of columns in the result set. As far as the 
+		 * query return at least a row, m_numColmns will be the 
+		 * number of columns in that row.
+		*/
+		int m_numColumns;
 		template<typename T>
 		bool getUnique(const char* query, T& resultValue);
 };
+
+
+inline SqlRows SQLiteDB::getRows(const char* query) {
+	sqlite3_stmt* statement;
+	if (sqlite3_prepare_v2(DB, query, -1, &statement, 0) == SQLITE_OK){
+		m_numColumns = sqlite3_column_count(statement);
+		if (m_numColumns){
+			return statement;
+		}
+	}
+	return nullptr;
+}
+
 
 template<typename T>
 bool SQLiteDB::getUnique(const char* query, T& resultValue){
@@ -197,7 +189,8 @@ void SQLiteDB::applyToRows(const char* query, Func callback) {
 			while (row.yield()){
 				callback(row);
 			}
-			// no need to call sqlite3_finalize here as it will be called by the destructor of SqlRow
+			// no need to call sqlite3_finalize here as it will be called by 
+			//the destructor of SqlRow
 		}
 	}
 }
@@ -217,5 +210,18 @@ bool SQLiteDB::executeQuery(const char* query, Func callback){
 	return true;
 }
 
+template<typename... Args>
+int SQLiteDB::prepareQuery(const char* query, Args ...args){
+	sqlite3_stmt *statement;
+	const char* ozTest;
+	if(SQLITE_OK==sqlite3_prepare_v2(DB, query, strlen(query), &statement, &ozTest)){
+		if(SQLITE_OK==binding(statement, 0, args...)){
+			sqlite3_step(statement);
+			sqlite3_finalize(statement);
+			return 0;
+		}
+	}
+	return sqlite3_errcode(DB);
+}
 
 #endif

@@ -34,6 +34,11 @@ For the next methods let's consider the following example:
 These methods get the specific column name in the current row of the result as int,
 double and const unsigned char* respectively.
 
+**template<typename T>
+	T DATA_AS(const char* field)**
+
+Template as above.
+
 Class SQLiteDB
 
 **SQLiteDB::SQLiteDB(const char\* database_name)**
@@ -78,3 +83,12 @@ be the first in the list.
 **sqlite3_int64 SQLiteDB::lastInsertID()**
 
 Wrapper for sqlite3_last_insert_rowid
+
+
+**int prepareQuery(const char* query, Args ...args)**
+
+Binding values to prepared query. Example:
+
+    dbConnection.prepareQuery("insert into COMPANY values (?,?,?,?,?), (?,?,?,?,?)", 16, "heello6!", 6, "Yes!!", 3.1419, 17, "heello7!", 7, "Yes!!", 3.1420);
+
+

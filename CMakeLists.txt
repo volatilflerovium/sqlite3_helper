@@ -24,9 +24,9 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 set(SOURCES 
-	create_database.cpp
-	#query_database.cpp
-	sqlite_db.cpp
+	#create_database.cpp
+	query_database.cpp
+	sqlite_db_traits.cpp
 )
 
 add_executable(sqlite_test ${SOURCES})

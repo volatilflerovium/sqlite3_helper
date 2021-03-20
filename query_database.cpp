@@ -7,9 +7,6 @@
 
 #include "sqlite_db.h"
 
-//g++ -std=c++11 test2.cpp -o test2 -l sqlite3
-
-
 int main() {
 
 	SQLiteDB dbConnection("Test.db");
@@ -24,7 +21,7 @@ int main() {
 	std::string query("");
 	query="select ID, Name, Salary from COMPANY where ID<'20'";
 
-	SqlRow rows=dbConnection.getRows(query.c_str());
+	SqlRows rows=dbConnection.getRows(query.c_str());
 	while(rows.yield()){
 		std::cout<<"ID: "<<rows.AS_INT("ID")<<" | Name: "<<rows.AS_TEXT("Name")<<" | Salary:"<<rows.AS_DOUBLE("Salary")<<"\n";
 	}
