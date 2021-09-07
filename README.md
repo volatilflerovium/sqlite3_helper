@@ -7,12 +7,23 @@ Documentation:
 
 **SqlRows::SqlRows(sqlite3_stmt\* statement)**
 
-Constructor, SqlRows is a wrapper for sqlite3_stmt*
+*Description:*
+
+   Constructor, SqlRows is a wrapper for sqlite3_stmt*
+
+*Parameters:*
+
+statement
+
+    a sqlite3_stmt object.
+
 
 **bool SqlRows::yield()**
 
-Calling yield will retrieve the next row in the result. Return true
-if there is a new row, false when there is not more rows in the result.
+*Description:*
+
+   Calling yield will retrieve the next row in the result. Return true
+   if there is a new row, false when there is not more rows in the result.
 
 For the next methods let's consider the following example:
 
