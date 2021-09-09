@@ -96,7 +96,7 @@ columnName
        std::cout<<"ID: "<<rows.AS_INT("ID")<<" | Name: "<<rows.AS_TEXT("Name")<<" | Salary:"<<rows.AS_DOUBLE("Salary")<<"\n";
     }
 
-**template<typename T>
+**template<typename T>\n
 T DATA_AS(const char\* field)**
 
 Template as above.
