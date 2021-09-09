@@ -9,14 +9,21 @@ Documentation:
 
 *Description:*
 
-   Constructor, SqlRows is a wrapper for sqlite3_stmt*
+   Constructor
 
 *Parameters:*
 
 statement
 
-    a sqlite3_stmt object.
+   a pointer to a sqlite3_stmt statement handle object that has been used 
+   as argument for any of the following routines:
 
+    int sqlite3_prepare(...);
+    int sqlite3_prepare_v2(...);
+    int sqlite3_prepare_v3(...);
+    int sqlite3_prepare16(...);
+    int sqlite3_prepare16_v2(...);
+    int sqlite3_prepare16_v3(...);
 
 **bool SqlRows::yield()**
 
@@ -25,7 +32,60 @@ statement
    Calling yield will retrieve the next row in the result. Return true
    if there is a new row, false when there is not more rows in the result.
 
-For the next methods let's consider the following example:
+*Parameters:*
+
+   no parameters
+
+*Return value:*
+
+   void
+
+**int SqlRows::AS_INT(const char\* columnName)**
+
+*Description:*
+
+   Retrieves the value of the column columnName in the current row of the result.
+
+*Parameters:*
+
+columnName
+   const char* the name of the column
+   
+*Return value:*
+
+   int 
+
+**double SqlRows::AS_DOUBLE(const char\* columnName)**
+
+*Description:*
+
+   Retrieves the value of the column columnName in the current row of the result.
+
+*Parameters:*
+
+columnName
+   const char* the name of the column
+   
+*Return value:*
+
+   double
+
+**const unsigned char\* SqlRows::AS_TEXT(const char\* field)**
+
+*Description:*
+
+   Retrieves the value of the column columnName in the current row of the result.
+
+*Parameters:*
+
+columnName
+   const char* the name of the column
+   
+*Return value:*
+
+   const unsigned char\*
+   
+**Example**
 
     SQLiteDB dbConnection("Test.db");
 	
@@ -35,15 +95,6 @@ For the next methods let's consider the following example:
     while(rows.yield()){
        std::cout<<"ID: "<<rows.AS_INT("ID")<<" | Name: "<<rows.AS_TEXT("Name")<<" | Salary:"<<rows.AS_DOUBLE("Salary")<<"\n";
     }
-
-**int SqlRows::AS_INT(const char\* column_name)**
-
-**double SqlRows::AS_DOUBLE(const char\* field)**
-
-**const unsigned char\* SqlRows::AS_TEXT(const char\* field)**
-
-These methods get the specific column name in the current row of the result as int,
-double and const unsigned char* respectively.
 
 **template<typename T>
 	T DATA_AS(const char* field)**

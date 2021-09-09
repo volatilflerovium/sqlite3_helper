@@ -81,12 +81,6 @@ inline bool operator<(const SqlRows::FieldName& fieldNameL, const SqlRows::Field
 class SQLiteDB 
 {
 	public:
-	
-		~SQLiteDB()
-		{
-			sqlite3_close(DB);
-		}
-	
 		SQLiteDB(const char* db)
 			:DB(nullptr),
 			m_changed(false)
@@ -95,7 +89,11 @@ class SQLiteDB
 				throw sqlite3_errmsg(DB);
 			}
 		}
-	
+
+		~SQLiteDB(){
+			sqlite3_close(DB);
+		}	
+
 		int lastErrorCode(){
 			return sqlite3_errcode(DB);
 		}
