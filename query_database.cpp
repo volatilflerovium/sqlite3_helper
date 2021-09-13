@@ -21,9 +21,14 @@ int main() {
 	std::string query("");
 	query="select ID, Name, Salary from COMPANY where ID<'20'";
 
+	dbConnection.applyToRows(query.c_str(), [](SqlRows& row){
+		std::cout<<"ID: "<<row.AS_INT("ID")<<" | Name: "<<row.AS_TEXT("Name")<<" | Salary:"<<row.DATA_AS<double>("Salary")<<"\n";
+	});
+
+
 	SqlRows rows=dbConnection.getRows(query.c_str());
 	while(rows.yield()){
-		std::cout<<"ID: "<<rows.AS_INT("ID")<<" | Name: "<<rows.AS_TEXT("Name")<<" | Salary:"<<rows.AS_DOUBLE("Salary")<<"\n";
+		std::cout<<"ID: "<<rows.AS_INT("ID")<<" | Name: "<<rows.AS_TEXT("Name")<<" | Salary:"<<rows.DATA_AS<double>("Salary")<<"\n";
 	}
 
 	std::string resultName("");
