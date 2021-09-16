@@ -11,6 +11,8 @@
 #ifndef SQLITE_DB_TRAITS_H
 #define SQLITE_DB_TRAITS_H
 
+#include <iostream>
+
 #include <cstring>
 #include <string>
 #include <sqlite3.h> 

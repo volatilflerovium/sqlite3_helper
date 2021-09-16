@@ -18,20 +18,21 @@ Class SQLiteDB
 
 *Parameters:*
 
-   dbName database file name.
+   @param dbName: database file name.
+
+	@throws const char* thrown if it is not possible to open the connection to the database.  
 
 **int SQLiteDB::lastErrorCode()**
 
 *Description:*
 
-   Return the error code of the last error ocurred.
+   Return the error code of the last error ocurred (see)[http://www.sqlite.org/c3ref/errcode.html]
 
 **const char* SQLiteDB::lastErrorMsg()**
 
 *Description:*
 
-   Return a description of the last error.
-
+   Return a description of the last error (see)[http://www.sqlite.org/c3ref/errcode.html].
 
 **bool SQLiteDB::executeQuery(const char\* query)**
 
@@ -41,171 +42,152 @@ Class SQLiteDB
 
 *Parameters:*
 
-   query SQL query statement to be executed.
-
-*Return value:*
-
-   true if the SQL query executes successfully, false otherwise.
+   @param query a SQL statement to be executed.
+   @return true on success, false otherwise
 
 **bool SQLiteDB::dataChanged()**
 
 *Description:*
 
-   return true if last query changed the database data;
+   Return true if last query changed the database data.
 
 **void SQLiteDB::applyToRows(const char* query, SqlRowFunc callback)**
 
 *Description:*
 
-   execute a SQL query and apply a callback function on each row of the result. 
+   Execute a SQL query and apply a callback function on each row of the result. 
 
 *Parameters:*
 
-   query a SQL statement to be executed.
-   callback a function of type SqlRowFunc which will be applied to each row of the result.
+   @param query a SQL statement to be executed.
+   @param callback a function of SqlRowFunc type which will be applied to each row of the result.
+      (see below for SqlRowFunc type)
 
-**bool SQLiteDB::uniqueAsInt(const char\* query, int& defaultValue)**
+**bool SQLiteDB::uniqueAsInt(const char\* query, int& resultValue)**
 
 *Description:*
 
-   execute a SQL statement and return the first column of the first row of the results. The column value return should be of type integer.
+   Execute a SQL query and get the value of the first column of the first row of the results.
 
 *Parameters:*
 
-	@param query: SQL statement
-	@param defaultValue: if the query executes and returns any columns, this value will be override the value passed.
-	@return bool: true if the executed query return any query, false otherwise
+	@param query a SQL query
+	@param[out] resultValue if the query executes and returns any columns, this value will override the passed value
+	@return bool true if the query executes succefully and the result has at least one row, false otherwise.
 
-**bool SQLiteDB::uniqueAsDouble(const char\* query, double& returnValue)**
+**bool SQLiteDB::uniqueAsDouble(const char\* query, double& resultValue)**
 
 *Description:*
 
-   execute a SQL statement and return the first column of the first row of the results. The column value return should be of type double.
+   Execute a SQL query and get the value of the first column of the first row of the results.
 
 *Parameters:*
 
-	@param query: SQL statement
-	@param defaultValue: if the query executes and returns any columns, this value will be override the value passed.
-	@return bool: true if the executed query return any query, false otherwise
+	@param query a SQL query
+	@param[out] resultValue if the query executes and returns any columns, this value will override the passed value
+	@return bool true if the query executes succefully and the result has at least one row, false otherwise.
 
-**bool SQLiteDB::uniqueAsText(const char\* query, std::string& returnValue)**
+**bool SQLiteDB::uniqueAsText(const char\* query, std::string& resultValue)**
 
 *Description:*
 
-   execute a SQL statement and return the first column of the first row of the results. The column value return should be of text type.
+   Execute a SQL query and get the value of the first column of the first row of the results.
 
 *Parameters:*
 
-	@param query: SQL statement
-	@param defaultValue: if the query executes and returns any columns, this value will be override the value passed.
-	@return bool: true if the executed query return any query, false otherwise
+	@param query a SQL query
+	@param[out] resultValue if the query executes and returns any columns, this value will override the passed value
+	@return bool true if the query executes succefully and the result has at least one row, false otherwise.
 
 **sqlite3_int64 SQLiteDB::lastInsertID()**
 
 *Description:*
 
-   Wrapper for sqlite3_last_insert_rowid
+   Wrapper for (sqlite3_last_insert_rowid)[http://www.sqlite.org/c3ref/last_insert_rowid.html]
+
+**template<typename... Args>\
+int executeSecureQuery(const char* query, Args ...args)**
+
+*Description:*
+
+   Bind values to prepared SQL statement and execute the prepared query. 
+   Example:
+
+    SqlRows rows=dbConnection.executeSecureQuery("select ID, Name from COMPANY where ID<? and Name=?", 4, "DVf");
+
+	 // inserting a new record
+    dbConnection.executeSecureQuery("insert into COMPANY values (?,?,?,?,?)", 16, "heello6!", 6, "Yes!!", 3.1419);
+
+    // inserting multiple records at once
+    dbConnection.executeSecudeQuery("insert into COMPANY values (?,?,?,?,?), (?,?,?,?,?)", 16, "heello6!", 6, "Yes!!", 3.1419, 17, "heello7!", 7, "Yes!!", 3.1420);
 
 *Parameters:*
 
-	no parameters
-	@return sqlite3_int64: the ID of the last inserted value
+   @param query a SQL statement template with parameters '?' 
+   @tparam Args variadic number of arguments one for each unspecified parameter '?' and in the same order as they will be applied.
+   @return SqlRows object for the rows of the result.
 
-**int prepareExecuteQuery(const char* query, Args ...args)**
-
-*Description:*
-
-   Binding values to prepared query. Example:
-
-    dbConnection.prepareExecuteQuery("insert into COMPANY values (?,?,?,?,?), (?,?,?,?,?)", 16, "heello6!", 6, "Yes!!", 3.1419, 17, "heello7!", 7, "Yes!!", 3.1420);
-
-
-**SqlRows SQLiteDB::getRows(const char\* query)**
+**SqlRows SQLiteDB::getResultRows(const char\* query)**
 
 *Description:*
 
-   Returns a **SqlRows** object with the result of the query (see below).
+	Execute a SQL query.
 
+*Parameters:*
 
+   @param query a SQL statement
+   @return a SqlRows object for the rows of the result of the query.
 
 **class SqlRows**
 
 *Description:*
 
-   
-
-*Parameters:*
-
-statement
-
-   a pointer to a sqlite3_stmt statement handle object that has been used 
-   as argument for any of the following routines:
-
-    int sqlite3_prepare(...);
-    int sqlite3_prepare_v2(...);
-    int sqlite3_prepare_v3(...);
-    int sqlite3_prepare16(...);
-    int sqlite3_prepare16_v2(...);
-    int sqlite3_prepare16_v3(...);
+   Objects of this class hold a pointer to a preparared sqlite3_stmt statement.
 
 **bool SqlRows::yield()**
 
 *Description:*
 
-   Calling yield will retrieve the next row in the result. 
+   Step into the next row in the result. 
 
 *Parameters:*
 
    no parameters
-
-*Return value:*
-
-   bool, it returns true if there is a new row, false when there is not more rows in the result.
+   @return true if there is a new row, false when there is not more rows in the result.
 
 **int SqlRows::AS_INT(const char\* columnName)**
 
 *Description:*
 
-   Retrieves the value of the column columnName in the current row of the result.
+   Retrieves the value of a specific column in the current row of the result.
 
 *Parameters:*
 
-columnName
-   const char* the name of the column
+   @param columnName the name of a spacific column, the type of the column must be integer
+   @return the value of column in the current row.
    
-*Return value:*
-
-   int 
-
 **double SqlRows::AS_DOUBLE(const char\* columnName)**
 
 *Description:*
 
-   Retrieves the value of the column columnName in the current row of the result.
+   Retrieves the value of a specific column in the current row of the result.
 
 *Parameters:*
 
-columnName
-   const char* the name of the column
+   @param columnName the name of a spacific column, the type of the column must be double
+   @return the value of column in the current row.
    
-*Return value:*
-
-   double
 
 **const unsigned char\* SqlRows::AS_TEXT(const char\* field)**
 
 *Description:*
 
-   Retrieves the value of the column columnName in the current row of the result.
+   Retrieves the value of a specific column in the current row of the result.
 
 *Parameters:*
 
-columnName
-   const char* the name of the column
-   
-*Return value:*
-
-   const unsigned char\*
+   @param columnName the name of a spacific column, the type of the column must be text
+   @return the value of column in the current row.
    
 **Example**
 
@@ -218,8 +200,4 @@ columnName
        std::cout<<"ID: "<<rows.AS_INT("ID")<<" | Name: "<<rows.AS_TEXT("Name")<<" | Salary:"<<rows.AS_DOUBLE("Salary")<<"\n";
     }
 
-**template<typename T>\
-T DATA_AS(const char\* field)**
-
-Template as above.
 

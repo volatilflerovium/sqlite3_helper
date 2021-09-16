@@ -2,8 +2,8 @@
 * SqlRow class                               								*
 * SQLiteDB class                                                     *
 *                                                                    *
-* Version: 1.0                                                       *
-* Date:    23-01-2021                                                *
+* Version: 1.2                                                       *
+* Date:    16-09-2021                                                *
 * Author:  Dan Machado                                               *                                         *
 **********************************************************************/
 #ifndef SQLITE_DB_H
@@ -23,10 +23,10 @@ class SQLiteDB
 {
 	public:
 		SQLiteDB(const char* db)
-			:DB(nullptr),
-			m_changed(false)
+		:DB(nullptr),
+		 m_changed(false)
 		{
-			if (sqlite3_open_v2(db, &DB, SQLITE_OPEN_READWRITE, NULL)){
+			if (sqlite3_open_v2(db, &DB, SQLITE_OPEN_READWRITE, NULL)>0){
 				throw sqlite3_errmsg(DB);
 			}
 		}
@@ -67,17 +67,13 @@ class SQLiteDB
 			return sqlite3_last_insert_rowid(DB);
 		}
 
-		template<typename... Args>
-		int prepareExecuteQuery(const char* query, Args ...args);
-
 		class SqlRowsInner
 		{
 			public:			
 				~SqlRowsInner(){
-					//std::cout<<"++++++++++++++++ destructor\n";
 					sqlite3_finalize(m_statement);
 				}
-			
+
 				bool yield(){
 					if (SQLITE_ROW == sqlite3_step(m_statement)){
 						return true;
@@ -86,42 +82,44 @@ class SQLiteDB
 					m_statement = nullptr;
 					return false;
 				}
-			
+
 				int AS_INT(const char* field){
 					return sqlite3_column_int(m_statement, m_fieldNames[field]);
 				}
-			
+
 				double AS_DOUBLE(const char* field){
 					return sqlite3_column_double(m_statement, m_fieldNames[field]);
 				}
-			
+
 				const unsigned char* AS_TEXT(const char* field){
 					return sqlite3_column_text(m_statement, m_fieldNames[field]);
 				}
-				
+
 				template<typename T>
 				T DATA_AS(const char* field){
 					return TypeToFunction<T>::getColumnData(m_statement, m_fieldNames[field]);
 				}
-			
+
 				struct FieldName {
 					const char* field;
 					FieldName(const char* cstr)
 						:field(std::move(cstr))
 					{}
 				};
-			
+
 			private:
+				std::map<FieldName, int> m_fieldNames;
+				sqlite3_stmt* m_statement;
+				 
 				SqlRowsInner(sqlite3_stmt* statement)
-					:m_statement(statement)
-				{
+				:
+				m_statement(statement)					
+				{			
 					for (int i = 0; i < sqlite3_column_count(statement); i++) {
 						m_fieldNames[sqlite3_column_name(statement, i)] = i;
 					}
 				}
-				std::map<FieldName, int> m_fieldNames;
-				sqlite3_stmt* m_statement;
-				
+
 			friend SQLiteDB;
 		};
 
@@ -129,8 +127,11 @@ class SQLiteDB
 
 		void applyToRows(const char* query, SqlRowFunc callback);
 
-		SqlRowsInner getRows(const char* query);
-		
+		SqlRowsInner getResultRows(const char* query);
+
+		template<typename... Args>
+		SqlRowsInner executeSecureQuery(const char* query, Args ...args);
+
 	private:
 		sqlite3* DB;
 		/*The number of columns in the result set. As far as the 
@@ -142,7 +143,7 @@ class SQLiteDB
 
 		template<typename T>
 		bool getUnique(const char* query, T& resultValue);
-		
+
 		template<typename Func>
 		bool executeQuery(const char* query, Func callback);
 };
@@ -203,29 +204,13 @@ bool SQLiteDB::executeQuery(const char* query, Func callback){
 
 //----------------------------------------------------------------------
 
-template<typename... Args>
-int SQLiteDB::prepareExecuteQuery(const char* query, Args ...args){
-	sqlite3_stmt *statement;
-	const char* ozTest;
-	if(SQLITE_OK==sqlite3_prepare_v2(DB, query, strlen(query), &statement, &ozTest)){
-		if(SQLITE_OK==binding(statement, 0, args...)){
-			sqlite3_step(statement);
-			sqlite3_finalize(statement);
-			return 0;
-		}
-	}
-	return sqlite3_errcode(DB);
-}
-
-//----------------------------------------------------------------------
-
 inline bool operator<(const SqlRows::FieldName& fieldNameL, const SqlRows::FieldName& fieldNameR) {
 	return std::strcmp(fieldNameL.field, fieldNameR.field) < 0;
 }
 
 //----------------------------------------------------------------------
 
-inline SqlRows SQLiteDB::getRows(const char* query) {
+inline SqlRows SQLiteDB::getResultRows(const char* query) {
 	sqlite3_stmt* statement;
 	if (sqlite3_prepare_v2(DB, query, -1, &statement, 0) == SQLITE_OK){
 		m_numColumns = sqlite3_column_count(statement);
@@ -236,6 +221,21 @@ inline SqlRows SQLiteDB::getRows(const char* query) {
 	return nullptr;
 }
 
+//----------------------------------------------------------------------
 
+template<typename... Args>
+inline SqlRows SQLiteDB::executeSecureQuery(const char* query, Args ...args){
+	sqlite3_stmt *statement;
+	const char* ozTest;
+	if(SQLITE_OK==sqlite3_prepare_v2(DB, query, strlen(query), &statement, &ozTest)){
+		if(SQLITE_OK==binding(statement, 0, args...)){
+			m_numColumns = sqlite3_column_count(statement);
+			if (m_numColumns){
+				return statement;
+			}
+		}
+	}
+	return nullptr;
+}
 
 #endif
