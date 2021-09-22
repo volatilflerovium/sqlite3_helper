@@ -27,7 +27,7 @@ Class SQLiteDB
 
    Return the error code of the last error ocurred (see)[http://www.sqlite.org/c3ref/errcode.html]
 
-**const char* SQLiteDB::lastErrorMsg()**
+**const char\* SQLiteDB::lastErrorMsg()**
 
 *Description:*
 
@@ -50,7 +50,7 @@ Class SQLiteDB
 
    Return true if last query changed the database data.
 
-**void SQLiteDB::applyToRows(const char* query, SqlRowFunc callback)**
+**void SQLiteDB::applyToRows(const char\* query, SqlRowFunc callback)**
 
 *Description:*
 
@@ -58,8 +58,8 @@ Class SQLiteDB
 
 *Parameters:*
 
-   @param query a SQL statement to be executed.
-   @param callback a function of SqlRowFunc type which will be applied to each row of the result.
+    @param query a SQL statement to be executed.
+    @param callback a function of SqlRowFunc type which will be applied to each row of the result.
       (see below for SqlRowFunc type)
 
 **bool SQLiteDB::uniqueAsInt(const char\* query, int& resultValue)**
@@ -70,9 +70,9 @@ Class SQLiteDB
 
 *Parameters:*
 
-	@param query a SQL query
-	@param[out] resultValue if the query executes and returns any columns, this value will override the passed value
-	@return bool true if the query executes succefully and the result has at least one row, false otherwise.
+	 @param query a SQL query
+	 @param[out] resultValue if the query executes and returns any columns, this value will override the passed value
+	 @return bool true if the query executes succefully and the result has at least one row, false otherwise.
 
 **bool SQLiteDB::uniqueAsDouble(const char\* query, double& resultValue)**
 
@@ -82,9 +82,9 @@ Class SQLiteDB
 
 *Parameters:*
 
-	@param query a SQL query
-	@param[out] resultValue if the query executes and returns any columns, this value will override the passed value
-	@return bool true if the query executes succefully and the result has at least one row, false otherwise.
+	 @param query a SQL query
+	 @param[out] resultValue if the query executes and returns any columns, this value will override the passed value
+	 @return bool true if the query executes succefully and the result has at least one row, false otherwise.
 
 **bool SQLiteDB::uniqueAsText(const char\* query, std::string& resultValue)**
 
@@ -94,9 +94,9 @@ Class SQLiteDB
 
 *Parameters:*
 
-	@param query a SQL query
-	@param[out] resultValue if the query executes and returns any columns, this value will override the passed value
-	@return bool true if the query executes succefully and the result has at least one row, false otherwise.
+	 @param query a SQL query
+	 @param[out] resultValue if the query executes and returns any columns, this value will override the passed value
+	 @return bool true if the query executes succefully and the result has at least one row, false otherwise.
 
 **sqlite3_int64 SQLiteDB::lastInsertID()**
 
@@ -105,7 +105,7 @@ Class SQLiteDB
    Wrapper for (sqlite3_last_insert_rowid)[http://www.sqlite.org/c3ref/last_insert_rowid.html]
 
 **template<typename... Args>\
-int executeSecureQuery(const char* query, Args ...args)**
+int executeSecureQuery(const char\* query, Args ...args)**
 
 *Description:*
 
@@ -122,9 +122,9 @@ int executeSecureQuery(const char* query, Args ...args)**
 
 *Parameters:*
 
-   @param query a SQL statement template with parameters '?' 
-   @tparam Args variadic number of arguments one for each unspecified parameter '?' and in the same order as they will be applied.
-   @return SqlRows object for the rows of the result.
+    @param query a SQL statement template with parameters '?' 
+    @tparam Args variadic number of arguments one for each unspecified parameter '?' and in the same order as they will be applied.
+    @return SqlRows object for the rows of the result.
 
 **SqlRows SQLiteDB::getResultRows(const char\* query)**
 
@@ -134,8 +134,8 @@ int executeSecureQuery(const char* query, Args ...args)**
 
 *Parameters:*
 
-   @param query a SQL statement
-   @return a SqlRows object for the rows of the result of the query.
+    @param query a SQL statement
+    @return a SqlRows object for the rows of the result of the query.
 
 **class SqlRows**
 
@@ -151,8 +151,8 @@ int executeSecureQuery(const char* query, Args ...args)**
 
 *Parameters:*
 
-   no parameters
-   @return true if there is a new row, false when there is not more rows in the result.
+    no parameters
+    @return true if there is a new row, false when there is not more rows in the result.
 
 **int SqlRows::AS_INT(const char\* columnName)**
 
@@ -162,8 +162,8 @@ int executeSecureQuery(const char* query, Args ...args)**
 
 *Parameters:*
 
-   @param columnName the name of a spacific column, the type of the column must be integer
-   @return the value of column in the current row.
+    @param columnName the name of a spacific column, the type of the column must be integer
+    @return the value of column in the current row.
    
 **double SqlRows::AS_DOUBLE(const char\* columnName)**
 
@@ -173,8 +173,8 @@ int executeSecureQuery(const char* query, Args ...args)**
 
 *Parameters:*
 
-   @param columnName the name of a spacific column, the type of the column must be double
-   @return the value of column in the current row.
+    @param columnName the name of a spacific column, the type of the column must be double
+    @return the value of column in the current row.
    
 
 **const unsigned char\* SqlRows::AS_TEXT(const char\* field)**
@@ -185,8 +185,8 @@ int executeSecureQuery(const char* query, Args ...args)**
 
 *Parameters:*
 
-   @param columnName the name of a spacific column, the type of the column must be text
-   @return the value of column in the current row.
+    @param columnName the name of a spacific column, the type of the column must be text
+    @return the value of column in the current row.
    
 **Example**
 
