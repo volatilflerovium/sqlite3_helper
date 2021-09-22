@@ -18,8 +18,7 @@ Class SQLiteDB
 
 *Parameters:*
 
-   @param dbName: database file name.
-
+	@param dbName: database file name.\
 	@throws const char* thrown if it is not possible to open the connection to the database.  
 
 **int SQLiteDB::lastErrorCode()**
