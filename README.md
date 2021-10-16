@@ -106,15 +106,15 @@ QParams.
 ```
     QParams(int nBytes) // will use for sqlite3_prepare_v2 or sqlite3_prepare16_v2
 
-    QParams(int nBytes, const char** pzTail) // will use sqlite3_prepare_v2 or sqlite3_prepare16_v2
+    QParams(int nBytes, const char** pzTail) // will use sqlite3_prepare_v2
 
-    QParams(int nBytes, const void** pzTail) // will use sqlite3_prepare_v2 or sqlite3_prepare16_v2
+    QParams(int nBytes, const void** pzTail) // will use sqlite3_prepare16_v2
 
     QParam(int nBytes, unsigned int prepFlags), // will use sqlite3_prepare_v3 or sqlite3_prepare16_v3
 
-    QParams(int nBytes, unsigded int prepFlags, const char** pzTail). // will use sqlite3_prepare_v3 or sqlite3_prepare16_v3
+    QParams(int nBytes, unsigded int prepFlags, const char** pzTail). // will use sqlite3_prepare_v3
 
-    QParams(int nBytes, unsigded int prepFlags, const void** pzTail). // will use sqlite3_prepare_v3 or sqlite3_prepare16_v3
+    QParams(int nBytes, unsigded int prepFlags, const void** pzTail). // will use sqlite3_prepare16_v3
 ````
 Where, nBytes, prepFlags and \*\*pzTail have the same meaning describe in [prepare statement.](https://www3.sqlite.org/c3ref/prepare.html)
 
@@ -132,13 +132,13 @@ Example:
 ```
 
 Notice that SQLiteDB will use sqlite3_prepare_v2 or sqlite3_prepare16_v2
-base on the type of the query pases (const char* or const void) respectively
+base on the type of the query passed (const char* or const void) respectively
 the same apply to sqlite3_prepare_v3 or sqlite3_prepare16_v3. 
 
 A more interesting situation arises for execute secure SQL statements 
 (bind values to statements). For example:
 ```
-    "SELECT \* from Users where userID=? AND password=?"
+    "SELECT * from Users where userID=? AND password=?"
 
     "update COMPANY set Data=? where ID=?"
 
@@ -146,7 +146,7 @@ A more interesting situation arises for execute secure SQL statements
 ```
 In these situations we can use:
 ```
-    template<typename UTF, typename... Args>\
+    template<typename UTF, typename... Args>
     SqlRows executeSecureQuery(QParams qParams, UTF query, Args ...args);
 ```
 Thus we can do:
@@ -204,7 +204,7 @@ needed by respective sqlite3 binding routine. Thus to bind:
 So the obvious question is what is fn cbk in the parameter list of most 
 of these structures? This is the pointer to function parameter in
 ```
-    sqlite3_bind_XXXX(sqlite3_stmt\*, int, const void\*, int, void(\*)(void\*), ...);
+    sqlite3_bind_XXXX(sqlite3_stmt*, int, const void*, int, void(*)(void*), ...);
 ```
 as in the documentation https://www3.sqlite.org/c3ref/bind_blob.html
 
@@ -217,7 +217,7 @@ Example:
 
 Another element of SQLiteDB is SqlRows, a class to iterate through 
 the rows in the result of a prepare statement. At the core of it is
-a template method SqlRows::data_as<typename>. This method return
+a template method SqlRows::data_as<typename>. This method returns
 the value in the column in the current row. The types of the values
 to be return can be:
 
@@ -254,7 +254,9 @@ respectively. Example:
         std::cout<<"ID: "<<rows.as_int("ID")<<\
             " | Name: "<<rows.data_as<std::string>("Name")<<\
             " | utf16: "<<reinterpret_cast<const char*>(rows.data_as<text>("utf16"))<<"\n";
-        outfile.write(static_cast<const char*>(rows.data_as<blob>("Data")), size);
+
+        int fileSize=rows.data_as<bytes>("Data");
+        outfile.write(static_cast<const char*>(rows.data_as<blob>("Data")), fileSize);
         outfile.close();
     }
 ```
