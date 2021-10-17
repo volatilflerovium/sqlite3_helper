@@ -71,7 +71,7 @@ respectively), therefore the template parameter is used to choose between
 sqlite3_prepare_v2 or sqlite3_prepare16_v2 (sqlite3_prepare_v3 or sqlite3_prepare16_v3).
 
 These methods have overloaded versions, accepting an extra parameter:
-- unsigned int or
+- unsigned int prepFlags
 - QParam qParam. 
 Thus we can do:
 ```
@@ -79,8 +79,9 @@ Thus we can do:
 ```
 or
 ```
-    getResultRows("some query", prepFlags);// where prepFlags is a valid flag for sqlite3_prepare_v3 (or sqlite3_prepare16_v3)
+    getResultRows("some query", prepFlags);
 ```
+where prepFlags is a valid flag for sqlite3_prepare_v3 (or sqlite3_prepare16_v3)
 or
 ```
     getResultRows("some query", QParam(bytes, tail, flags));
