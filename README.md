@@ -92,34 +92,30 @@ or
 The easy way to describe QParam structure is as follows:
 observe the signature for sqlite3_prepare_v2 and sqlite3_prepare_v3
 ```
-    int sqlite3_prepare_v2 // or sqlite3_prepare16_v2
-    (
-     sqlite3*, UTF, int nByte, sqlite3_stmt**, UTF *pzTail
-    );
-    
-int sqlite3_prepare16_v2(sqlite3*, UTF, int nByte, sqlite3_stmt**, UTF *pzTail);
+int sqlite3_prepare_v2(sqlite3*, const char*, int nByte, sqlite3_stmt**, const char **pzTail);
 
-    int sqlite3_prepare_v3 // or sqlite3_prepare16_v3
-    (
-     sqlite3*, UTF, int nByte, unsigned int prepFlags, sqlite3_stmt**, UTF *pzTail
-    );
+int sqlite3_prepare16_v2(sqlite3*, const void*, int nByte, sqlite3_stmt**, const void **pzTail);
+
+int sqlite3_prepare_v3(sqlite3*, const char*, int nByte, unsigned int prepFlags, sqlite3_stmt**, const char **pzTail);
+
+int sqlite3_prepare16_v3(sqlite3*, const void*, int nByte, unsigned int prepFlags, sqlite3_stmt**, const void **pzTail);
 ```
 The named parameters: nBytes, pzTail and prepFlags in sqlite3_prepare_v2 (or sqlite3_prepare16_v2)
 and in qlite3_prepare_v3 (or sqlite3_prepare16_v3) can be wrapped using
 QParams.
 
 ```
-    QParams(int nBytes) // will use for sqlite3_prepare_v2 or sqlite3_prepare16_v2
+QParams(int nBytes) // will use for sqlite3_prepare_v2 or sqlite3_prepare16_v2
 
-    QParams(int nBytes, const char** pzTail) // will use sqlite3_prepare_v2
+QParams(int nBytes, const char** pzTail) // will use sqlite3_prepare_v2
 
-    QParams(int nBytes, const void** pzTail) // will use sqlite3_prepare16_v2
+QParams(int nBytes, const void** pzTail) // will use sqlite3_prepare16_v2
 
-    QParam(int nBytes, unsigned int prepFlags), // will use sqlite3_prepare_v3 or sqlite3_prepare16_v3
+QParam(int nBytes, unsigned int prepFlags), // will use sqlite3_prepare_v3 or sqlite3_prepare16_v3
 
-    QParams(int nBytes, unsigded int prepFlags, const char** pzTail). // will use sqlite3_prepare_v3
+QParams(int nBytes, unsigded int prepFlags, const char** pzTail). // will use sqlite3_prepare_v3
 
-    QParams(int nBytes, unsigded int prepFlags, const void** pzTail). // will use sqlite3_prepare16_v3
+QParams(int nBytes, unsigded int prepFlags, const void** pzTail). // will use sqlite3_prepare16_v3
 ````
 Where, nBytes, prepFlags and \*\*pzTail have the same meaning describe in [prepare statement.](https://www3.sqlite.org/c3ref/prepare.html)
 
@@ -156,13 +152,13 @@ In these situations we can use:
 ```
 Thus we can do:
 ```
-    dbConnection.executeSecureQuery(qParams, "insert into COMPANY values (?,?,?,?,?), (?,?,?,?,?)", 16, "heello6!", 6, "Yes!!", 3.1419, 17, "heello7!", 7, "Yes!!", 3.1420);
+dbConnection.executeSecureQuery(qParams, "insert into COMPANY values (?,?,?,?,?), (?,?,?,?,?)", 16, "heello6!", 6, "Yes!!", 3.1419, 17, "heello7!", 7, "Yes!!", 3.1420);
 
-    dbConnection.executeSecureQuery(0, "select ID, Name from COMPANY where ID=? and Name=?", 3, "wmMV52HO");
+dbConnection.executeSecureQuery(0, "select ID, Name from COMPANY where ID=? and Name=?", 3, "wmMV52HO");
 ```
 In general we can write:
 ```
-    dbConnection.executeSecureQuery(qParams, "insert into COMPANY values (?,?,?,?,?)", valType1, valType2, ..., valTypeN);
+dbConnection.executeSecureQuery(qParams, "insert into COMPANY values (?,?,?,?,?)", valType1, valType2, ..., valTypeN);
 ```
 The following types can be bind straight forward:
 
@@ -215,7 +211,7 @@ as in the documentation https://www3.sqlite.org/c3ref/bind_blob.html
 
 Example:
 ```
-    dbConnection.executeSecureQuery(0, "update COMPANY set Data=? where ID=?", blob(reinterpret_cast<const void*>(memblock), size, SQLITE_TRANSIENT), 5);
+dbConnection.executeSecureQuery(0, "update COMPANY set Data=? where ID=?", blob(reinterpret_cast<const void*>(memblock), size, SQLITE_TRANSIENT), 5);
 ```
 
 # SqlRows
