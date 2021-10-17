@@ -49,7 +49,57 @@ class SqlRows
 		int reset();
 
 		/**
-		 * Access the values in the current result row of a specific column 
+		 * Wrapper for sqlite3_column_int. 
+		 */
+		int as_int(const char* field);
+
+		/**
+		 * Wrapper for sqlite3_column_double. 
+		 */
+		double as_double(const char* field);
+
+		/**
+		 * Wrapper for sqlite3_column_text. 
+		 */
+		const unsigned char* as_text(const char* field);
+
+		/**
+		 * Wrapper for sqlite3_column_blob. 
+		 */
+		const void* as_blob(const char* field);
+
+		/**
+		 * Wrapper for sqlite3_column_int64. 
+		 */
+		sqlite3_int64 as_int64(const char* field);
+
+		/**
+		 * Wrapper for sqlite3_column_text16. 
+		 */
+		const void* as_text16(const char* field);
+
+		/**
+		 * Wrapper for sqlite3_column_value. 
+		 */		
+		sqlite3_value* as_value(const char* field);
+		
+		/**
+		 * Wrapper for sqlite3_column_bytes. 
+		 */
+		int as_bytes(const char* field);
+
+		/**
+		 * Wrapper for sqlite3_column_bytes16. 
+		 */
+		int as_bytes16(const char* field);
+		
+		/**
+		 * Wrapper for sqlite3_column_type. 
+		 */
+		int as_type(const char* field);
+
+		/**
+		 * Access the value in the current result row of a specific column 
 		 * by the name of the column.
 		 * 
 		 * Every time SqlRows::yield() is called and return true, a new row
@@ -62,24 +112,6 @@ class SqlRows
 		 */
 		template<typename T>
 		typename ColumnData<T>::returnType data_as(const char* field);
-
-		/**
-		 * Specialised wrapper for SqlRows::data_as<int> to return integers values 
-		 * from columns with same type. 
-		 */
-		int as_int(const char* field);
-
-		/**
-		 * Specialised wrapper for SqlRows::data_as<double> to return double values 
-		 * from columns with same type. 
-		 */
-		double as_double(const char* field);
-
-		/**
-		 * Specialised wrapper for SqlRows::data_as<const char*> to return 
-		 * const char* values from columns with same type. 
-		 */
-		const unsigned char* as_text(const char* field);
 
 		struct FieldName {
 			const char* field;
@@ -171,5 +203,46 @@ inline int SqlRows::findKey(const char* field){
 }
 
 //----------------------------------------------------------------------
+
+inline const void* SqlRows::as_blob(const char* field){
+	return sqlite3_column_blob(m_statement, findKey(field));
+}
+
+//----------------------------------------------------------------------
+
+inline sqlite3_int64 SqlRows::as_int64(const char* field){
+	return sqlite3_column_int64(m_statement, findKey(field));
+}
+
+//----------------------------------------------------------------------
+
+inline const void* SqlRows::as_text16(const char* field){
+	return sqlite3_column_text16(m_statement, findKey(field));
+}
+
+//----------------------------------------------------------------------
+
+inline sqlite3_value* SqlRows::as_value(const char* field){
+	return sqlite3_column_value(m_statement, findKey(field));
+}
+
+//----------------------------------------------------------------------
+
+inline int SqlRows::as_bytes(const char* field){
+	return sqlite3_column_bytes(m_statement, findKey(field));
+}
+
+//----------------------------------------------------------------------
+
+inline int SqlRows::as_bytes16(const char* field){
+	return sqlite3_column_bytes16(m_statement, findKey(field));
+}
+
+//----------------------------------------------------------------------
+
+inline int SqlRows::as_type(const char* field){
+	return sqlite3_column_type(m_statement, findKey(field));
+}
+
 
 #endif

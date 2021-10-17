@@ -52,6 +52,8 @@ This project has two elements:
 
 # Documentation:
 
+# SQLiteDB
+
 The simplest way to execute SQL queries can be done using one of the 
 follwoing methods:
 ```
@@ -81,7 +83,7 @@ or
 ```
 or
 ```
-    getResultRows("some query", QParam(bytes, tail, flags);
+    getResultRows("some query", QParam(bytes, tail, flags));
 ```
 
 # QParams
@@ -91,12 +93,12 @@ observe the signature for sqlite3_prepare_v2 and sqlite3_prepare_v3
 ```
     int sqlite3_prepare_v2 // or sqlite3_prepare16_v2
     (
-     sqlite3\*, UTF, int nByte, sqlite3_stmt**, UTF \*pzTail
+     sqlite3*, UTF, int nByte, sqlite3_stmt**, UTF *pzTail
     );
 
     int sqlite3_prepare_v3 // or sqlite3_prepare16_v3
     (
-     sqlite3\*, UTF, int nByte, unsigned int prepFlags, sqlite3_stmt\*\*, UTF \*pzTail
+     sqlite3*, UTF, int nByte, unsigned int prepFlags, sqlite3_stmt**, UTF *pzTail
     );
 ```
 The named parameters: nBytes, pzTail and prepFlags in sqlite3_prepare_v2 (or sqlite3_prepare16_v2)
@@ -215,48 +217,30 @@ Example:
 
 # SqlRows
 
-Another element of SQLiteDB is SqlRows, a class to iterate through 
-the rows in the result of a prepare statement. At the core of it is
-a template method SqlRows::data_as<typename>. This method returns
-the value in the column in the current row. The types of the values
-to be return can be:
-
-- blob as in sqlite3_column_blob
-- double as in sqlite3_column_double
-- int as int sqlite3_column_int
-- sqlite3_int64 as in sqlite3_column_int64
-- text as in sqlite3_column_text
-- text16 as in sqlite3_column_text16
-- sqlite3_value* as in  sqlite3_column_value
-- bytes as in sqlite3_column_bytes
-- bytes16 as in sqlite3_column_bytes16
-- sqlite_type as in sqlite3_column_type
-
-Therefore we can do:
+Another element of SQLiteDB class is SqlRows, a class to iterate through 
+the rows in the result of a prepare statement and access the values in each row
+by name of the column. This is very convenient because we do not have to
+keep track of the position of a column name in the query, for example:
 ```
-    SqlRows::data_as<blob>
-    SqlRows::data_as<double>
-    SqlRows::data_as<int>
-    SqlRows::data_as<sqlite3_int64>
-    SqlRows::data_as<text>
-    SqlRows::data_as<text16>
-    SqlRows::data_as<sqlite3_value*>
-    SqlRows::data_as<bytes>
-    SqlRows::data_as<bytes16>
-    SqlRows::data_as<sqlite_type>
+    "SELECT ID, adress, userName, settings from MyTable...."
+    "SELECT userName, settings from MyTable...."
 ```
-respectively. Example:
+in the first case **userName** is in position 1 while in the second query
+it is in position 0. So it is more convenient to retrieve the value of 
+**userName** using... Well the name of the own column!:
+```
+    resultRow.as_text("userName");
+``` 
+Example:
 ```
     const char* query2="select ID, Name, utf16, Data from COMPANY where ID='5'";
 
     SqlRows rows=dbConnection.getResultRows(query2);
-    while(rows.yield()){
-        std::cout<<"ID: "<<rows.as_int("ID")<<\
-            " | Name: "<<rows.data_as<std::string>("Name")<<\
-            " | utf16: "<<reinterpret_cast<const char*>(rows.data_as<text>("utf16"))<<"\n";
-
-        int fileSize=rows.data_as<bytes>("Data");
-        outfile.write(static_cast<const char*>(rows.data_as<blob>("Data")), fileSize);
+    while(rows.yield())
+    {
+        std::cout<<"ID: "<<rows.as_int("ID")<<" | Name: "<<rows.as_text("Name")<<" | utf16: "<<reinterpret_cast<const char*>(rows.as_text("utf16"))<<"\n";
+        fileSize=rows.as_bytes("Data");
+        outfile.write(static_cast<const char*>(rows.as_blob("Data")), fileSize);
         outfile.close();
     }
 ```

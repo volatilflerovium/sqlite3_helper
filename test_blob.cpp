@@ -37,7 +37,7 @@ int main() {
 	const char* query="select ID, Name, Ħφ, Salary from COMPANY where ID<'20' AND ID>'15'";
 
 	dbConnection.applyToRows(query, [](SqlRows& row){
-		std::cout<<"ID: " << row.as_int("ID")<<" | Name: " << row.as_text("Name") << " | Salary:" << row.data_as<double>("Salary") << " | Ħφ: " << row.data_as<int>("Ħφ") <<"\n";
+		std::cout<<"ID: " << row.as_int("ID")<<" | Name: " << row.as_text("Name") << " | Salary:" << row.data_as<double>("Salary") << " | Ħφ: " << row.as_int("Ħφ") <<"\n";
 	});
 
 	if(dbConnection.lastErrorCode()>0){
@@ -67,10 +67,10 @@ int main() {
 
 			SqlRows rows=dbConnection.getResultRows(query2);
 			while(rows.yield()){
-				std::cout<<"ID: "<<rows.as_int("ID")<<" | Name: "<<rows.as_text("Name")<<" | utf16: "<<reinterpret_cast<const char*>(rows.data_as<text>("utf16"))<<"\n";
-				std::cout<<"size: "<<rows.data_as<bytes>("Data")<<"\n";
-				int fileSize=rows.data_as<bytes>("Data");
-				outfile.write(static_cast<const char*>(rows.data_as<blob>("Data")), fileSize);
+				std::cout<<"ID: "<<rows.as_int("ID")<<" | Name: "<<rows.as_text("Name")<<" | utf16: "<<reinterpret_cast<const char*>(rows.as_text("utf16"))<<"\n";
+				std::cout<<"size: "<<rows.as_bytes("Data")<<"\n";
+				int fileSize=rows.as_bytes("Data");
+				outfile.write(static_cast<const char*>(rows.as_blob("Data")), fileSize);
 				outfile.close();
 			}
 		}
@@ -85,12 +85,12 @@ int main() {
 
 	SqlRows rows=dbConnection.getResultRows(query2);
 	while(rows.yield()){
-		std::cout<<"ID: "<<rows.as_int("ID")<<" | Name: "<<rows.as_text("Name")<<" | utf16: "<<reinterpret_cast<const char*>(rows.data_as<const void*>("utf16"))<<"\n";
+		std::cout<<"ID: "<<rows.as_int("ID")<<" | Name: "<<rows.as_text("Name")<<" | utf16: "<<reinterpret_cast<const char*>(rows.as_blob("utf16"))<<"\n";
 	}
 	std::cout<<"reset rows\n";
 	rows.reset();
 	while(rows.yield()){
-		std::cout<<"ID: "<<rows.as_int("ID")<<" | Name: "<<rows.as_text("Name")<<" | utf16: "<<reinterpret_cast<const char*>(rows.data_as<const void*>("utf16"))<<"\n";
+		std::cout<<"ID: "<<rows.as_int("ID")<<" | Name: "<<rows.as_text("Name")<<" | utf16: "<<reinterpret_cast<const char*>(rows.as_blob("utf16"))<<"\n";
 	}
 
 	std::cout<<"\n* * * * * * * Example 4* * * * * * *\n";
