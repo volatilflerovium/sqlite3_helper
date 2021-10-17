@@ -96,6 +96,8 @@ observe the signature for sqlite3_prepare_v2 and sqlite3_prepare_v3
     (
      sqlite3*, UTF, int nByte, sqlite3_stmt**, UTF *pzTail
     );
+    
+int sqlite3_prepare16_v2(sqlite3*, UTF, int nByte, sqlite3_stmt**, UTF *pzTail);
 
     int sqlite3_prepare_v3 // or sqlite3_prepare16_v3
     (
