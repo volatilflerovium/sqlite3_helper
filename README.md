@@ -1,9 +1,6 @@
-# sqlite3_helper
+# SQLite3 Wrapper
 
-A C++ Class wrapper for SQLite C++ Interface.
-
-The purpose is to simplifies quering a database using the [SQLite C++ Interface](http://www.sqlite.org/)
-by selecting the appropiate version to use and parameter to pass.
+Two C++ classes to simplify quering a database using the [SQLite C++ Interface](http://www.sqlite.org/).
 
 This project has two elements:
 
