@@ -9,16 +9,16 @@ This project has two elements:
 
 - SQLiteDB: a classs to wrap the [SQLite](http://www.sqlite.org/) C++ interface.
 
-- SqlRows: a class lass to iterate through the rows in the result of a SQL query.
+- SqlRows: a class to iterate through the rows in the result of a SQL query.
 
 # Content
  
 - [Features](#features)
-- [Quick Start](#quick-start)
+- [Quick start](#quick-start)
 - [Documentation](#documentation)
    - [SQLiteDB](#sqlitedb)
       - [QParams](#qparams)
-      - [BindData](#binddata)
+      - [Binding values](#binding-values)
    - [SqlRows](#sqlrows)
 - [License](#license)
 
@@ -28,9 +28,9 @@ This project has two elements:
 
 - Set specific parameters as needed.
 
-- Get value of a column/field in the result by name.
+- Get value of any column in the result by its name.
 
-# Quick Start
+# Quick start
 
 ```
     SQLiteDB dbConnection("my_database_file.db");
@@ -71,8 +71,8 @@ respectively), therefore the template parameter is used to choose between
 sqlite3_prepare_v2 or sqlite3_prepare16_v2 (sqlite3_prepare_v3 or sqlite3_prepare16_v3).
 
 These methods have overloaded versions, accepting an extra parameter:
-- unsigned int prepFlags
-- QParam qParam. 
+- unsigned int prepFlags: a valid flag for sqlite3_prepare*_v3
+- QParam qParam: a structure to wrap more parameters.\
 Thus we can do:
 ```
     getResultRows("some query");
@@ -81,16 +81,16 @@ or
 ```
     getResultRows("some query", prepFlags);
 ```
-where prepFlags is a valid flag for sqlite3_prepare_v3 (or sqlite3_prepare16_v3)
+therefore if prepFlags is a valid flag then the sqlite3_prepare*_v3 is used
 or
 ```
-    getResultRows("some query", QParam(bytes, tail, flags));
+    getResultRows("some query", QParam(bytes, tail, preFlags));
 ```
 
 # QParams
 
 The easy way to describe QParam structure is as follows:
-observe the signature for sqlite3_prepare_v2 and sqlite3_prepare_v3
+observe the signature for sqlite3_prepare*_v2 and sqlite3_prepare*_v3
 ```
 int sqlite3_prepare_v2(sqlite3*, const char*, int nByte, sqlite3_stmt**, const char **pzTail);
 
@@ -105,7 +105,7 @@ and in qlite3_prepare_v3 (or sqlite3_prepare16_v3) can be wrapped using
 QParams.
 
 ```
-QParams(int nBytes) // will use for sqlite3_prepare_v2 or sqlite3_prepare16_v2
+QParams(int nBytes) // will use sqlite3_prepare_v2 or sqlite3_prepare16_v2
 
 QParams(int nBytes, const char** pzTail) // will use sqlite3_prepare_v2
 
@@ -134,10 +134,12 @@ Example:
 
 Notice that SQLiteDB will use sqlite3_prepare_v2 or sqlite3_prepare16_v2
 base on the type of the query passed (const char* or const void) respectively
-the same apply to sqlite3_prepare_v3 or sqlite3_prepare16_v3. 
+the same apply to sqlite3_prepare_v3 and sqlite3_prepare16_v3. 
 
-A more interesting situation arises for execute secure SQL statements 
-(bind values to statements). For example:
+# Binding values
+
+In order to execute secure SQL statements we have to bind values to prepared 
+statements. For example:
 ```
     "SELECT * from Users where userID=? AND password=?"
 
@@ -202,7 +204,7 @@ needed by respective sqlite3 binding routine. Thus to bind:
 
 - null use null_data
 
-So the obvious question is what is fn cbk in the parameter list of most 
+So the obvious question is what is **fn cbk** in the parameter list of most 
 of these structures? This is the pointer to function parameter in
 ```
     sqlite3_bind_XXXX(sqlite3_stmt*, int, const void*, int, void(*)(void*), ...);
@@ -211,7 +213,9 @@ as in the documentation https://www3.sqlite.org/c3ref/bind_blob.html
 
 Example:
 ```
-dbConnection.executeSecureQuery(0, "update COMPANY set Data=? where ID=?", blob(reinterpret_cast<const void*>(memblock), size, SQLITE_TRANSIENT), 5);
+blob blobData(reinterpret_cast<const void*>(memblock), size, SQLITE_TRANSIENT);
+
+dbConnection.executeSecureQuery(0, "update COMPANY set Data=? where ID=?", blobData, 5);
 ```
 
 # SqlRows
