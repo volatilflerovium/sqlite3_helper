@@ -49,7 +49,7 @@ This project has two elements:
 
 # Documentation:
 
-# SQLiteDB
+## SQLiteDB
 
 The simplest way to execute SQL queries can be done using one of the 
 follwoing methods:
@@ -84,7 +84,7 @@ or
     getResultRows("some query", QParam(bytes, tail, preFlags));
 ```
 
-# QParams
+### QParams
 
 The easy way to describe QParam structure is as follows:
 observe the signature for sqlite3_prepare*_v2 and sqlite3_prepare*_v3
@@ -133,7 +133,7 @@ Notice that SQLiteDB will use sqlite3_prepare_v2 or sqlite3_prepare16_v2
 base on the type of the query passed (const char* or const void) respectively
 the same apply to sqlite3_prepare_v3 and sqlite3_prepare16_v3. 
 
-# Binding values
+### Binding values
 
 In order to execute secure SQL statements we have to bind values to prepared 
 statements. For example:
@@ -215,7 +215,7 @@ blob blobData(reinterpret_cast<const void*>(memblock), size, SQLITE_TRANSIENT);
 dbConnection.executeSecureQuery(0, "update COMPANY set Data=? where ID=?", blobData, 5);
 ```
 
-# SqlRows
+## SqlRows
 
 Another element of SQLiteDB class is SqlRows, a class to iterate through 
 the rows in the result of a prepare statement and access the values in each row
