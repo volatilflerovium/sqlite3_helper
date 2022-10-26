@@ -633,7 +633,9 @@ struct QParams
 	m_prepFlags(prepFlags),
 	m_isUTF8(false)
 	{};
-	
+
+	virtual ~QParams(){}
+
 	template<typename UTF>
 	typename DB_CONNECT<UTF>::zSqlPtr* getTail(){
 		if(!m_pzTail){
